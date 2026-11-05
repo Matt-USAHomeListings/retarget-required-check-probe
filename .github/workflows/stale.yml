@@ -1,0 +1,17 @@
+name: stale-check
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+jobs:
+  stale-check:
+    name: stale-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: |
+          mb=$(git merge-base "origin/${{ github.base_ref }}" HEAD)
+          echo "action=${{ github.event.action }} base=${{ github.base_ref }} merge-base=$mb"
+          if git diff "$mb" -- | grep -E '^\+.*BAD1'; then echo "::error::BAD1 found"; exit 1; fi
+          echo "no BAD1"
